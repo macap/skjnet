@@ -6,16 +6,15 @@ import java.util.HashMap;
 
 public class TCPServer {
 	
-	public final static String DIR = "/Users/maciek/torrent1/";
 	
-	public static void start(int port) throws Exception {
+	public static void start(int port, String DIR) throws Exception {
 		ServerSocket welcomeSocket = new ServerSocket(port); 
 		
 		while(true) {
 			Socket connectionSocket = welcomeSocket.accept();
 			try {
 			 //Connect client:
-			 System.out.println("Accepted connection: " + connectionSocket);
+			 System.out.println("SERVER: Accepted connection: " + connectionSocket);
 			 //Read client command
 			 BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
 			 
@@ -38,7 +37,7 @@ public class TCPServer {
 				 headers.put(h[0], h[1]);
 			 }
 			 
-			 System.out.println("Client command: "+command);
+			 System.out.println("SERVER: Client command: "+command);
 			 DataOutputStream outToClient =new DataOutputStream(connectionSocket.getOutputStream());
 		 		
 			 switch(command.toLowerCase()) {
@@ -50,7 +49,7 @@ public class TCPServer {
 			 		File[] fileList = f.listFiles();
 			 		
 			 		for(File p:fileList ) {
-			 			outToClient.writeBytes(p.getName()+' '+MD5.checksum(p)+'\n');
+			 			outToClient.writeBytes(p.getName()+'\t'+MD5.checksum(p)+'\t'+(int)p.length()+'\n');
 			 		}
 			 		
 					outToClient.flush();
@@ -96,7 +95,7 @@ public class TCPServer {
 				 		
 				 		 byte[] bytes = new byte[16*1024];
 
-				 		System.out.println("Sending " + myFile.getName() + "(" + mybytearray.length + " bytes)");
+				 		System.out.println("SERVER: Sending " + myFile.getName() + "(" + mybytearray.length + " bytes)");
 				 		 
 				         int count;
 				         while ((count = fis.read(bytes)) > 0) {
@@ -107,7 +106,7 @@ public class TCPServer {
 			 	          
 //			 	          outToClient.write(mybytearray,0,mybytearray.length);
 			 	        
-			 	          System.out.println("Done.");
+			 	          System.out.println("SERVER: Done.");
 //			 	         outToClient.writeBytes("0"+'\n');
 						outToClient.flush();
 						outToClient.close();
@@ -141,23 +140,17 @@ public class TCPServer {
 					  fos.write(buffer, 0, count);
 					}
 					
-					System.out.println("> total:"+(new File(DIR+fname).length()));
+					System.out.println("SERVER: > total:"+(new File(DIR+fname).length()));
 					
 					fos.close();
 					sis.close();	
 			 		
-			 		System.out.println("File ok:"+fname);
+//			 		System.out.println("SERVER: File ok:"+fname);
 			 		
-//			 		
-//			 		try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-//			 	              new FileOutputStream(DIR+fname), "utf-8"))) {
-//			 			
-//			 			while((line=inFromClient.readLine())!=null){ 
-//							 if (line.isEmpty()) break;
-//							 writer.write(line);
-//						 }
-//				 	
-//			 		}
+
+			 		
+			 		outToClient.writeBytes("SKJNET OK"+'\n');
+			 		
 			 		outToClient.flush();
 					outToClient.close();
 			 		
