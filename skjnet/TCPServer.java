@@ -73,7 +73,7 @@ public class TCPServer {
 		 					
 	 					  
 			 			  
-			 			  byte [] mybytearray  = new byte [end-start];
+//			 			  byte [] mybytearray  = new byte [end-start];
 			 	          fis = new FileInputStream(myFile);
 //			 	          bis = new BufferedInputStream(fis);
 			 	          
@@ -83,7 +83,7 @@ public class TCPServer {
 				 		outToClient.writeBytes("file:"+myFile.getName()+'\n');
 				 		outToClient.writeBytes("size:"+(int)myFile.length()+'\n');
 				 		outToClient.writeBytes("range:"+start+"-"+end+'\n');
-				 		outToClient.writeBytes("length:"+mybytearray.length+'\n');
+				 		outToClient.writeBytes("length:"+(end-start)+'\n');
 				 		outToClient.writeBytes("sum:"+MD5.checksum(myFile)+'\n'+'\n');
 			 	        
 				 		
@@ -93,13 +93,21 @@ public class TCPServer {
 
 				 		 OutputStream out = connectionSocket.getOutputStream();
 				 		
-				 		 byte[] bytes = new byte[16*1024];
+				 		 byte[] bytes = new byte[8192];
 
-				 		System.out.println("SERVER: Sending " + myFile.getName() + "(" + mybytearray.length + " bytes)");
+				 		System.out.println("SERVER: Sending " + myFile.getName() + "(" +(end-start) + " bytes)");
 				 		 
+				 		 int readedSoFar = start;
 				         int count;
 				         while ((count = fis.read(bytes)) > 0) {
-				             out.write(bytes, 0, count);
+				             if (readedSoFar+count>=end) {
+				            	int lastPartLength = end-readedSoFar;
+				            	out.write(bytes, 0, lastPartLength); 
+				            	break;
+				             } else {
+				            	 out.write(bytes, 0, count);
+				             }
+				        	 readedSoFar+=count;
 				         }
 				 		
 				 		

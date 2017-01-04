@@ -8,7 +8,7 @@ import java.io.InputStream;
 public class GetRequest extends Request {
 	public boolean breakDownload = false; // terminate transfer to test if download can continue later
 	private boolean append = false; //if true appends data to exising file
-	
+	public String customFileName = null;
 	
 	public GetRequest(int fileIndex, int start, int end) {
 		super(-1);
@@ -20,6 +20,11 @@ public class GetRequest extends Request {
 		targetAppId = fi.appId;
 		setHeader("file", fi.name);
 		setHeader("range", start+"-"+((end==-1)?"":end));
+	}
+	
+	public GetRequest(int fileIndex, int start, int end, boolean append) {
+		this(fileIndex,start,end);
+		this.append = append;
 	}
 	
 	public GetRequest(int fileIndex) {
@@ -37,8 +42,9 @@ public class GetRequest extends Request {
 	}
 	
 	public void getResponseBody() {
-	
-		String fname = response.headers.get("file");
+
+//		System.out.println(response);
+		String fname = (customFileName==null) ? response.headers.get("file") : customFileName;
 	 	try {
 			InputStream sis = socket.getInputStream();				 		
 			FileOutputStream fos = new FileOutputStream(ad.getDIR()+fname, append);
@@ -51,7 +57,7 @@ public class GetRequest extends Request {
 			  if (breakDownload && !append && (new File(ad.getDIR()+fname).length())>16000) break;
 				  
 			}
-			
+			fos.flush();
 			fos.close();
 			sis.close();	
 		 	System.out.println("File ok:"+fname);

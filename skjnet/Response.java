@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 public class Response {
 	String status;
@@ -56,5 +57,20 @@ public class Response {
 	
 	public boolean ok() {
 		return status.equals("SKJNET OK");
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("RESPONSE: ");
+		sb.append(status+'\n');
+		
+		for(Entry<String, String> e: headers.entrySet()){
+			sb.append(e.getKey()+":"+e.getValue()+'\n');
+		}
+		
+		sb.append("----");
+		
+		return sb.toString();
 	}
 }

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 public class ListRequest extends Request {
+	public boolean silent = false;
 	
 	public ListRequest(int targetAppId) {
 		super(targetAppId);
@@ -23,7 +24,7 @@ public class ListRequest extends Request {
 			 f.appId = targetAppId;
 			 
 			 ad.fileinfo.add(f);
-			 System.out.println("#"+ad.fileinfo.indexOf(f)+'\t'+f);
+			 if (!silent) System.out.println("#"+ad.fileinfo.indexOf(f)+'\t'+f);
 
 		 }
 		

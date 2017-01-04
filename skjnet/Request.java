@@ -105,7 +105,20 @@ public class Request {
 	}
 	
 	public void getResponseBody() {
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
 		
+		sb.append("SKJNET ");
+		sb.append(command);
+		sb.append(" REQUEST"+'\n');
+		
+		for(Entry<String, String> e: headers.entrySet()){
+			sb.append(e.getKey()+":"+e.getValue()+'\n');
+		}
+		
+		return sb.toString();
 	}
 	
 }
