@@ -14,7 +14,7 @@ public class TCPServer {
 			Socket connectionSocket = welcomeSocket.accept();
 			try {
 			 //Connect client:
-			 //LOG: System.out.println("SERVER: Accepted connection: " + connectionSocket);
+			 AppData.getInstance().log.info("SERVER: Accepted connection: " + connectionSocket);
 			 //Read client command
 			 BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
 			 
@@ -37,7 +37,7 @@ public class TCPServer {
 				 headers.put(h[0], h[1]);
 			 }
 			 
-			 //LOG: System.out.println("SERVER: Client command: "+command);
+			 AppData.getInstance().log.info("SERVER: Client command: "+command);
 			 DataOutputStream outToClient =new DataOutputStream(connectionSocket.getOutputStream());
 		 		
 			 switch(command.toLowerCase()) {
@@ -93,7 +93,7 @@ public class TCPServer {
 				 		
 				 		 byte[] bytes = new byte[8192];
 
-				 		 //LOG: System.out.println("SERVER: Sending " + myFile.getName() + "(" +(end-start) + " bytes)");
+				 		 AppData.getInstance().log.info("SERVER: Sending " + myFile.getName() + "(" +(end-start) + " bytes)");
 				 		 
 				 		 int readedSoFar = start;
 				         int count;
@@ -118,7 +118,7 @@ public class TCPServer {
 				 		fis.close();
 			 	          
 			 	        
-			 	        //LOG: System.out.println("SERVER: Done.");
+				 		 AppData.getInstance().log.info("SERVER: Done.");
 
 						
 			 			
@@ -169,9 +169,6 @@ public class TCPServer {
 					outToClient.flush();
 					outToClient.close();
 
-	 			
-	 			
-		 		
 			 }
 			 
 		

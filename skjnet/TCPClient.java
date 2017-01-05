@@ -29,6 +29,12 @@ public class TCPClient {
 		gr.send();
 	}
 	
+	public static void getAndBreak(int index) {
+		GetRequest gr = new GetRequest(index);
+		gr.breakDownload = true;
+		gr.send();
+	}
+	
 	public static void gets(int index) {
 		SimultaneousDownloadService sds = new SimultaneousDownloadService(index);
 		sds.send();
@@ -59,6 +65,12 @@ public class TCPClient {
 				case "get":
 					if (command.length>1) 
 						get(Integer.parseInt(command[1]));
+					else 
+						System.out.println("Not enough arguments");
+				break;
+				case "getb":
+					if (command.length>1) 
+						getAndBreak(Integer.parseInt(command[1]));
 					else 
 						System.out.println("Not enough arguments");
 				break;

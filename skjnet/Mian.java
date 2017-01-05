@@ -38,8 +38,9 @@ public class Mian {
 		System.out.println(
 				"\nCommands:\n "
 				+ "list - list files from all available instances \n "
-				+ "get <fileId> - download file from one instance \n "
+				+ "get <fileId> - download file from one instance or continue download if file already exists \n "
 				+ "gets <fileId> - download files from multiple instances simultaneously \n "
+				+ "getb <fileId> - gets first few bytes from a file and breaks connection - for testing \"download continue\" feature \n "
 				+ "push <instanceId> <fileName> - push file from instance directory to remote directory - instanceId \n\n"
 				);
 	    
@@ -57,6 +58,17 @@ public class Mian {
 		new Thread( () ->{
 			try {
 				TCPClient.start(DIR);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}).start();
+		
+		
+		//Start HTPP SERVER
+		new Thread( () ->{
+			try {
+				HttpServer.start(serverPort+1000,DIR);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

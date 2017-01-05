@@ -61,19 +61,15 @@ public class GetRequest extends Request {
 			while (size > 0 && (count = sis.read(buffer,0, (int)Math.min(buffer.length, size))) != -1)
 			{
 			  fos.write(buffer, 0, count);
-//			  if (breakDownload && !append && (new File(ad.getDIR()+fname).length())>16000) break;
+			  if (breakDownload && !append && (new File(ad.getDIR()+fname).length())>16000) break;
 			  size-=count;
 			}
 
 			
-			
-			
-			
-			
 			fos.flush();
 			fos.close();
 			sis.close();	
-			if (size>0 || (new File(ad.getDIR()+fname)).length() != Integer.parseInt(response.headers.get("length"))) {
+			if (!breakDownload && (size>0 || (new File(ad.getDIR()+fname)).length() != Integer.parseInt(response.headers.get("length")))) {
 				//transfer failed - should retry
 				//LOG: System.out.println("SIZE "+fname+" MISMATCH "+(new File(ad.getDIR()+fname)).length()+'\t'+response.headers.get("length"));
 				System.out.println("Retrying...");

@@ -65,6 +65,9 @@ public class Request {
 			
 			getResponse();
 			
+			ad.log.info(this.toString());
+			ad.log.info(this.response.toString());
+			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
