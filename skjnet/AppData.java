@@ -37,12 +37,26 @@ public class AppData {
 	   this.appsCount = appsCount;
 	   this.appId = appId;
 	   this.hostname = hostname;
-	   this.DIR = "/Users/maciek/torrent"+appId+"/";
+
+	   if (isWindows()) {
+		   this.DIR = "D:\\TORrent_"+appId+"\\";
+	   } else {
+		   this.DIR = "/Users/maciek/torrent"+appId+"/";
+	   }
+	   
    }
    
    public void clearFileList() {
 	   fileinfo.clear();
    }
    
+   public String getSystemName() {
+	   return System.getProperty("os.name");
+   }
+   
+   public boolean isWindows() {
+       return (getSystemName().indexOf("win") >= 0);
+   }
+
   
 }

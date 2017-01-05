@@ -4,6 +4,13 @@ public class Mian {
 
 	public static void main(String[] args) {
 		
+		if (args.length<1) {
+			System.out.println("Missing required argument: instanceId");
+			System.out.println("Arguments: instanceId <instancesCount=2> <hostname=127.0.0.1>");
+			return;
+		}
+		
+		
 		
 		//APP CONFIGURATION:
 		AppData ad = AppData.getInstance();
@@ -14,10 +21,28 @@ public class Mian {
 		
 		ad.setup(instances, instance, hostname);			
 		final int serverPort = ad.getPortOffset()+instance;//, clientPort = (instance == 1) ? 10002 : 10001;
+	
 		
 	
 	    final String DIR = ad.getDIR();
 		
+	    
+
+		System.out.println(
+				"SKJNET"+'\n'
+			   +"Instance ID:"+instance+'\t'+"Host:"+hostname+'\t'+"Listening on port: "+serverPort+'\n'
+			   +"Instance DIR:"+DIR+'\t'+"All instances:"+instances
+			   +"\nReport: http://localhost:"+(serverPort+1000)
+				);
+		
+		System.out.println(
+				"\nCommands:\n "
+				+ "list - list files from all available instances \n "
+				+ "get <fileId> - download file from one instance \n "
+				+ "gets <fileId> - download files from multiple instances simultaneously \n "
+				+ "push <instanceId> <fileName> - push file from instance directory to remote directory - instanceId \n\n"
+				);
+	    
 		
 	    //START TCP SERVER
 		new Thread( () ->{
