@@ -48,7 +48,7 @@ public class GetRequest extends Request {
 	
 	public void getResponseBody() {
 
-		System.out.println(response);
+		//LOG: System.out.println(response);
 		String fname = (customFileName==null) ? response.headers.get("file") : customFileName;
 	 	try {
 			InputStream sis = socket.getInputStream();				 		
@@ -75,7 +75,7 @@ public class GetRequest extends Request {
 			sis.close();	
 			if (size>0 || (new File(ad.getDIR()+fname)).length() != Integer.parseInt(response.headers.get("length"))) {
 				//transfer failed - should retry
-				System.out.println("SIZE "+fname+" MISMATCH "+(new File(ad.getDIR()+fname)).length()+'\t'+response.headers.get("length"));
+				//LOG: System.out.println("SIZE "+fname+" MISMATCH "+(new File(ad.getDIR()+fname)).length()+'\t'+response.headers.get("length"));
 				System.out.println("Retrying...");
 				failed =true;
 				

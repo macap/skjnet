@@ -2,8 +2,6 @@ package skjnet;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class SimultaneousDownloadService {
 	ArrayList<FileInfo> files = new ArrayList<FileInfo>();
@@ -35,7 +33,7 @@ public class SimultaneousDownloadService {
 		
 		//TODO: remove file if already exists!
 		
-		System.out.println("Will create "+files.size()+" requests ");
+		System.out.println("gets will create "+files.size()+" requests ");
 		
 		AppData ad = AppData.getInstance();	
 		
@@ -83,7 +81,7 @@ public class SimultaneousDownloadService {
 							
 							GetRequest gr = new GetRequest(fileIndex, start, end);	
 							gr.customFileName = customFileName;
-							System.out.println(gr);
+							//LOG: System.out.println(gr);
 							gr.send();
 							return;
 							
@@ -104,7 +102,7 @@ public class SimultaneousDownloadService {
 //		while (!executor.isTerminated()) {
 			 
 //		}
-		System.out.println("all threads finished downloading");
+		//LOG: System.out.println("all threads finished downloading");
 	
 		//if any part download failed, try with another targetApp
 
@@ -126,9 +124,6 @@ public class SimultaneousDownloadService {
 
 		
 		try {
-			
-					 		
-		
 			FileOutputStream fos = new FileOutputStream(ad.getDIR()+fi.name);
 			
 			for (String fname : filesToJoin) {
@@ -158,66 +153,19 @@ public class SimultaneousDownloadService {
 			e.printStackTrace();
 		}
 		
-		
-//		try
-//		{
-//		  // Target file:
-//		  FileOutputStream outFile = new FileOutputStream(ad.getDIR()+fi.name);
-//		  
-//		  for (String fname : filesToJoin)
-//		  {
-//			  File f = new File(ad.getDIR()+fname);
-//		      FileInputStream inFile = new FileInputStream(f);
-//		      Integer b = null;
-//		      while ((b = inFile.read()) != -1)
-//		          outFile.write(b);
-//		      inFile.close();
-//		     f.delete();
-//		  }
-//		  outFile.close();
-//		}
-//		catch (Exception e)
-//		{
-//		  e.printStackTrace();
-//		}
-		
+	
 		//checksum
 		File outFile = new File(ad.getDIR()+fi.name);
 		if (!MD5.checksum(outFile).equals(fi.hash)) {
-			System.out.println(">>>ERROR: hash mismatch");
+			System.out.println("ERROR: hash mismatch");
 			//resultFile.delete();
+		} else {
+			System.out.println("File ok:" + fi.name);
 		}
 		 
 		//Close randomAccessFile
 	}
 	
-	public static class MyRunnable implements Runnable {
-		private final int fileIndex, start,end;
-		private final String newFilename;
- 
-		MyRunnable(int fileIndex, int start, int end, String newFilename) {
-			this.fileIndex = fileIndex;
-			this.start = start;
-			this.end = end;
-			this.newFilename = newFilename;
-		}
- 
-		@Override
-		public void run() {
- 
-	
-			try {
-				
-				GetRequest gr = new GetRequest(fileIndex, start, end);	
-				gr.customFileName = newFilename;
-				System.out.println(gr);
-				gr.send();
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
+
 	
 }

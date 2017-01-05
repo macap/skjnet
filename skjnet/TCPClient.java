@@ -53,10 +53,6 @@ public class TCPClient {
 			
 			switch (command[0].toLowerCase()) {
 			
-				 
-					
-				
-			
 				case "list":
 					list();
 				break;
@@ -81,24 +77,7 @@ public class TCPClient {
 				default:
 					System.out.println("Command not found");
 			}
-			
-			
-			
-//				System.out.println("Select host you want to reach:");
-//				int appId = Integer.parseInt(userCommand.readLine());
-//				int port = 10000+appId;
-//				
-//				Socket clientSocket = new Socket("127.0.0.1", port);
-//				clientSocket.setTcpNoDelay(true);
-//				
-//				DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-//				BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-//				
-//				String line, status,response;
-//				HashMap<String, String> headers;
-//	
-//				clientSocket.close();
-				
+		
 		}
 	}
 }

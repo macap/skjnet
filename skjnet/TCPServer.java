@@ -14,7 +14,7 @@ public class TCPServer {
 			Socket connectionSocket = welcomeSocket.accept();
 			try {
 			 //Connect client:
-			 System.out.println("SERVER: Accepted connection: " + connectionSocket);
+			 //LOG: System.out.println("SERVER: Accepted connection: " + connectionSocket);
 			 //Read client command
 			 BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
 			 
@@ -37,7 +37,7 @@ public class TCPServer {
 				 headers.put(h[0], h[1]);
 			 }
 			 
-			 System.out.println("SERVER: Client command: "+command);
+			 //LOG: System.out.println("SERVER: Client command: "+command);
 			 DataOutputStream outToClient =new DataOutputStream(connectionSocket.getOutputStream());
 		 		
 			 switch(command.toLowerCase()) {
@@ -74,11 +74,8 @@ public class TCPServer {
 		 					if (end > (int)myFile.length()) end = (int)myFile.length();
 	 					  
 			 			  
-//			 			  byte [] mybytearray  = new byte [end-start];
 			 	          fis = new FileInputStream(myFile);
-//			 	          bis = new BufferedInputStream(fis);
-			 	          
-			 	          
+			 	         
 			 	          
 			 	       //response:  
 	 					outToClient.writeBytes("SKJNET OK"+'\n');
@@ -91,14 +88,12 @@ public class TCPServer {
 				 		outToClient.flush();
 				 		
 				 		fis.skip(start);
-//			 	          bis.skip(start);
-//			 	          bis.read(mybytearray,0,mybytearray.length);
 
 				 		 OutputStream out = connectionSocket.getOutputStream();
 				 		
 				 		 byte[] bytes = new byte[8192];
 
-				 		System.out.println("SERVER: Sending " + myFile.getName() + "(" +(end-start) + " bytes)");
+				 		 //LOG: System.out.println("SERVER: Sending " + myFile.getName() + "(" +(end-start) + " bytes)");
 				 		 
 				 		 int readedSoFar = start;
 				         int count;
@@ -110,24 +105,12 @@ public class TCPServer {
 
 						while (size > 0 && (count = fis.read(bytes,0, (int)Math.min(bytes.length, size))) != -1)
 						{
-						  out.write(bytes, 0, count);
-//						
+						  out.write(bytes, 0, count);		
 						  size-=count;
 						}
 						
-						System.out.println("SIZE:"+size);
+						//LOG: System.out.println("SIZE:"+size);
 				         
-//				         while ((count = fis.read(bytes)) > 0) {
-//				             if (readedSoFar+count>=end) {
-//				            	int lastPartLength = end-readedSoFar;
-//				            	out.write(bytes, 0, lastPartLength); 
-//				            	break;
-//				             } else {
-//				            	 out.write(bytes, 0, count);
-//				             }
-//				        	 readedSoFar+=count;
-//				         }
-//				         
 
 				        out.flush();
 						connectionSocket.close();
@@ -135,7 +118,7 @@ public class TCPServer {
 				 		fis.close();
 			 	          
 			 	        
-			 	          System.out.println("SERVER: Done.");
+			 	        //LOG: System.out.println("SERVER: Done.");
 
 						
 			 			
@@ -166,19 +149,17 @@ public class TCPServer {
 					  fos.write(buffer, 0, count);
 					}
 					
-					System.out.println("SERVER: > total:"+(new File(DIR+fname).length()));
+					//LOG: System.out.println("SERVER: > total:"+(new File(DIR+fname).length()));
+					
+					System.out.println(">Received file "+fname);
+					
 					
 					fos.close();
-					sis.close();	
-			 		
-//			 		System.out.println("SERVER: File ok:"+fname);
-			 		
-
-			 		
-			 		outToClient.writeBytes("SKJNET OK"+'\n');
 			 		
 			 		outToClient.flush();
-					outToClient.close();
+			 		sis.close();				 		
+			 		
+//			 		outToClient.close();
 			 		
 
 		 		break;

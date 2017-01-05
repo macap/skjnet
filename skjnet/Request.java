@@ -25,23 +25,7 @@ public class Request {
 	}
 	
 	public boolean connect() {
-		
-//		int port = ad.getPortOffset()+targetAppId;
-//		
-//		try {
-//			socket = new Socket("127.0.0.1", port);
-//			socket.setTcpNoDelay(true);
-//		} catch (UnknownHostException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return false;
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return false;
-//		}
-//		
-//		
+		//not used
 		return true;
 	}
 	
@@ -90,7 +74,7 @@ public class Request {
 			e.printStackTrace();
 			return false;
 		} catch (Exception e) {
-			System.out.println("--- ERROR sending data:");
+			System.out.println("ERROR sending data:");
 			e.printStackTrace();
 			
 			return false;
