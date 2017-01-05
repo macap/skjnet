@@ -26,22 +26,22 @@ public class Request {
 	
 	public boolean connect() {
 		
-		int port = ad.getPortOffset()+targetAppId;
-		
-		try {
-			socket = new Socket("127.0.0.1", port);
-			socket.setTcpNoDelay(true);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
-		
-		
+//		int port = ad.getPortOffset()+targetAppId;
+//		
+//		try {
+//			socket = new Socket("127.0.0.1", port);
+//			socket.setTcpNoDelay(true);
+//		} catch (UnknownHostException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			return false;
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			return false;
+//		}
+//		
+//		
 		return true;
 	}
 	
@@ -54,11 +54,19 @@ public class Request {
 		return resp.valid() ? resp : null;
 	}
 	
-	public boolean send() {
+	public void sendHeaders() {
 		
-		if (socket==null) connect();
+	}
+	
+	protected boolean send() {
+		
+		//if (socket==null) connect();
 		
 		try {
+			int port = ad.getPortOffset()+targetAppId;
+			
+			socket = new Socket("127.0.0.1", port);
+			
 			DataOutputStream os = new DataOutputStream(socket.getOutputStream());
 			os.writeBytes("SKJNET "+command+'\n');
 			
@@ -73,14 +81,35 @@ public class Request {
 			
 			getResponse();
 			
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
 		} catch (Exception e) {
 			System.out.println("--- ERROR sending data:");
 			e.printStackTrace();
 			
 			return false;
+		} finally {
+			closeSocket();
 		}
+		
+		
 
 		return true;
+	}
+	
+	public void closeSocket() {
+		try {
+			if (socket!=null) socket.close();
+			socket = null;
+		} catch (Exception e) {
+			System.out.println("Unable to close socket");
+		}
 	}
 	
 	public void sendBody() {
@@ -94,14 +123,7 @@ public class Request {
 			getResponseBody();
 			return;
 		}
-		
-		try {
-			socket.close();
-			socket = null;
-		} catch (Exception e) {
-			System.out.println("Error closing socket");
-			e.printStackTrace();
-		}
+	
 	}
 	
 	public void getResponseBody() {

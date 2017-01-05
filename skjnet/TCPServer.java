@@ -70,12 +70,14 @@ public class TCPServer {
 			 			  int start = Integer.parseInt(range[0]),
 		 					  end = (range.length==2) ? Integer.parseInt(range[1]) : (int)myFile.length();
 			 			  
-		 					
+		 					if (start > (int)myFile.length()) start = (int)myFile.length();
+		 					if (end > (int)myFile.length()) end = (int)myFile.length();
 	 					  
 			 			  
 //			 			  byte [] mybytearray  = new byte [end-start];
 			 	          fis = new FileInputStream(myFile);
 //			 	          bis = new BufferedInputStream(fis);
+			 	          
 			 	          
 			 	          
 			 	       //response:  
@@ -86,6 +88,7 @@ public class TCPServer {
 				 		outToClient.writeBytes("length:"+(end-start)+'\n');
 				 		outToClient.writeBytes("sum:"+MD5.checksum(myFile)+'\n'+'\n');
 			 	        
+				 		outToClient.flush();
 				 		
 				 		fis.skip(start);
 //			 	          bis.skip(start);
@@ -99,26 +102,41 @@ public class TCPServer {
 				 		 
 				 		 int readedSoFar = start;
 				         int count;
-				         while ((count = fis.read(bytes)) > 0) {
-				             if (readedSoFar+count>=end) {
-				            	int lastPartLength = end-readedSoFar;
-				            	out.write(bytes, 0, lastPartLength); 
-				            	break;
-				             } else {
-				            	 out.write(bytes, 0, count);
-				             }
-				        	 readedSoFar+=count;
-				         }
-				 		
-				 		
+				         
+				         
+				         long size = (end-start);
+							
+						
+
+						while (size > 0 && (count = fis.read(bytes,0, (int)Math.min(bytes.length, size))) != -1)
+						{
+						  out.write(bytes, 0, count);
+//						
+						  size-=count;
+						}
+						
+						System.out.println("SIZE:"+size);
+				         
+//				         while ((count = fis.read(bytes)) > 0) {
+//				             if (readedSoFar+count>=end) {
+//				            	int lastPartLength = end-readedSoFar;
+//				            	out.write(bytes, 0, lastPartLength); 
+//				            	break;
+//				             } else {
+//				            	 out.write(bytes, 0, count);
+//				             }
+//				        	 readedSoFar+=count;
+//				         }
+//				         
+
+				        out.flush();
+						connectionSocket.close();
+				 		out.close();
+				 		fis.close();
 			 	          
-//			 	          outToClient.write(mybytearray,0,mybytearray.length);
 			 	        
 			 	          System.out.println("SERVER: Done.");
-//			 	         outToClient.writeBytes("0"+'\n');
-						outToClient.flush();
-						outToClient.close();
-						fis.close();
+
 						
 			 			
 			 			
@@ -170,11 +188,17 @@ public class TCPServer {
 					outToClient.flush();
 					outToClient.close();
 
-	 			break;
+	 			
+	 			
 		 		
 			 }
+			 
+		
+			 
+			 	
+			 
 			} catch (SocketException e){
-				
+				e.printStackTrace();
 				
 				
 			} catch (Exception e) {
