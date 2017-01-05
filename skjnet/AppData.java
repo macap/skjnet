@@ -64,7 +64,7 @@ public class AppData {
 	
 	protected AppData() {
 		fileinfo = new ArrayList<FileInfo>();
-		loggerInit();
+		
 	}
 
 	public static AppData getInstance() {
@@ -82,21 +82,20 @@ public class AppData {
 		if (isWindows()) {
 			this.DIR = "D:\\TORrent_" + appId + "\\";
 		} else {
-			this.DIR = "/Users/maciek/torrent" + appId + "/";
+			this.DIR = System.getProperty("user.home")+"/TORrent_" + appId + "/";
 		}
-
+		loggerInit();
 	}
 
 	public void clearFileList() {
 		fileinfo.clear();
 	}
 
-	public String getSystemName() {
-		return System.getProperty("os.name");
-	}
 
 	public boolean isWindows() {
-		return (getSystemName().indexOf("win") >= 0);
+		String sysName = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
+	      
+		return (sysName.indexOf("win") >= 0);
 	}
 
 }
