@@ -30,15 +30,10 @@ public class PushRequest extends Request {
 	 		OutputStream out = socket.getOutputStream();
 	 		byte[] bytes = new byte[16*1024];
 	 		System.out.println("Sending " + file.getName() + "(" + file.length() + " bytes)");
-	 		 
 	         int count;
 	         while ((count = fis.read(bytes)) > 0) {
 	             out.write(bytes, 0, count);
 	         }
-	 		
-	 		
-	        out.flush();
-			out.close();
 			fis.close();
 			System.out.println("file sent OK");
 		} catch (Exception e) {

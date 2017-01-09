@@ -5,55 +5,38 @@ import java.util.ArrayList;
 
 public class SimultaneousDownloadService {
 	ArrayList<FileInfo> files = new ArrayList<FileInfo>();
-	
+	AppData ad = null;
 	
 	public SimultaneousDownloadService(int fileIndex) {
 		//1. select files
-		AppData ad = AppData.getInstance();	
+		ad = AppData.getInstance();	
 		FileInfo fi = ad.fileinfo.get(fileIndex);
 		
 		files.add(fi);
 		
-		//search for other file locations 
 		for (FileInfo f : ad.fileinfo) 
-			if (f.hash.equals(fi.hash) && f.appId!=fi.appId && f.name.equals(fi.name) )  //TODO: support different filenames
+			if (f.hash.equals(fi.hash) && f.appId!=fi.appId && f.name.equals(fi.name) ) 
 				files.add(f);
 			
 		
 			
 	}
 	
-	public SimultaneousDownloadService(int fileIndex, int[] targetAppsIds) { 
-		this(fileIndex);//TODO: specify targetAppsIds
-	}
-	
 	public void send() {
 		if (files.isEmpty()) return;
 		
-		
-		//TODO: remove file if already exists!
-		
-		System.out.println("gets will create "+files.size()+" requests ");
-		
-		AppData ad = AppData.getInstance();	
+		System.out.println("Sending "+files.size()+" requests ");
 		
 		FileInfo fi = files.get(0);
 		//Prepare ranges to download for each targetApp
 		int requestsCount = files.size();
 		
 		int divider = fi.size/requestsCount;
-
 		int pointer = 0;
-		
 		if (divider<8192) divider = 8192; //min buffer size
-
-		//Create randomAccessFile with file size (and temp extension)
 
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		ArrayList<String> filesToJoin = new ArrayList<String>();
-		
-//		ExecutorService executor = Executors.newFixedThreadPool(files.size());
-		
 		
 		//Foreach targetApp send get request (in background) and put data in randomAccessFile
 		for (FileInfo f: files) {
@@ -65,47 +48,24 @@ public class SimultaneousDownloadService {
 			String customFileName = f.name+".part"+threadIndex;
 			filesToJoin.add(customFileName);
 			
-			
-//			GetRequest gr = new GetRequest(fileIndex, start, end);	
-//			gr.customFileName = customFileName;
-//			System.out.println(gr);
-//			gr.send();
-//			
-//			Runnable worker = new MyRunnable(fileIndex, start,end, customFileName);
-//			executor.execute(worker);
-//			
-			
 			threads.add(
 					new Thread( () ->{
 						try {
 							
 							GetRequest gr = new GetRequest(fileIndex, start, end);	
 							gr.customFileName = customFileName;
-							//LOG: System.out.println(gr);
 							gr.send();
 							return;
-							
 						} catch (Exception e) {
-							e.printStackTrace();
+					
 						}
 					})
 					
 					);
-			
-			threads.get(threads.size()-1).start();
 
+			threads.get(threads.size()-1).start();
 			pointer+=divider;
 		}
-		
-//		executor.shutdown();
-		
-//		while (!executor.isTerminated()) {
-			 
-//		}
-		//LOG: System.out.println("all threads finished downloading");
-	
-		//if any part download failed, try with another targetApp
-
 		
 		//join all threads
 		for (Thread thread : threads) {
@@ -117,11 +77,6 @@ public class SimultaneousDownloadService {
 				e.printStackTrace();
 			}
 		}
-		
-		//join all parts
-		
-		
-
 		
 		try {
 			FileOutputStream fos = new FileOutputStream(ad.getDIR()+fi.name);
@@ -157,13 +112,12 @@ public class SimultaneousDownloadService {
 		//checksum
 		File outFile = new File(ad.getDIR()+fi.name);
 		if (!MD5.checksum(outFile).equals(fi.hash)) {
-			System.out.println("ERROR: hash mismatch");
+			System.out.println("ERROR: file hash mismatch. Try again");
 			//resultFile.delete();
 		} else {
 			System.out.println("File ok:" + fi.name);
 		}
 		 
-		//Close randomAccessFile
 	}
 	
 

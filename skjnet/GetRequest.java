@@ -6,11 +6,6 @@ import java.io.InputStream;
 
 
 public class GetRequest extends Request {
-	
-	private final static int RETRY_LIMIT = 3;
-	private int retries = 0;
-	private boolean failed = false;
-	
 	public boolean breakDownload = false; // terminate transfer to test if download can continue later
 	private boolean append = false; //if true appends data to exising file
 	public String customFileName = null;
@@ -37,19 +32,9 @@ public class GetRequest extends Request {
 		this(fileIndex, 0, -1);
 	}
 	
-	
-	
 	public void getResponseBody() {
-
-		//LOG: System.out.println(response);
-		String fname = (customFileName==null) ? response.headers.get("file") : customFileName;
-		
-		//skip if full file already exists
-
-		
+		String fname = (customFileName==null) ? response.headers.get("file") : customFileName;		
 	 	try {
-	 		
-	 		
 	 		
 			InputStream sis = socket.getInputStream();				 		
 			FileOutputStream fos = new FileOutputStream(ad.getDIR()+fname, append);
@@ -65,56 +50,18 @@ public class GetRequest extends Request {
 			  size-=count;
 			}
 			
+			fos.close();	
 			
-
-			
-			fos.flush();
-			fos.close();
-			sis.close();	
 			if (!breakDownload && (size>0 || (!append && (new File(ad.getDIR()+fname)).length() != Integer.parseInt(response.headers.get("length"))))) {
-				//transfer failed - should retry
-			    System.out.println("SIZE "+fname+" MISMATCH "+(new File(ad.getDIR()+fname)).length()+'\t'+response.headers.get("length"));
-				System.out.println("Retrying...");
-				failed =true;
-				
-				
+				throw new Exception();
 			} else {
 				System.out.println("File ok:"+fname);
 			}
 	 	} catch (Exception e) {
-	 		System.out.println("error");
+	 		System.out.println("Error getting file");
 	 		e.printStackTrace();
 	 	}
 	
 	}
-	
-	public void closeSocket() {
-		super.closeSocket();
-		
-		if (failed) retry();
-	}
-	
-	public void retry() {
-		failed = false;
-		
-		if (retries++ > RETRY_LIMIT) {
-			System.out.println("File download failed after "+retries+" attempts.");
-		}
-		
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
 
-		}
-		
-		//delete old file
-		String fname = (customFileName==null) ? response.headers.get("file") : customFileName;
-		File f = new File(ad.getDIR()+fname);
-		f.delete();
-		//clear response
-		response = null;
-		
-		//send again
-		send();
-	}
 }
