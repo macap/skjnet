@@ -35,43 +35,45 @@ public class GetRequest extends Request {
 	
 	public GetRequest(int fileIndex) {
 		this(fileIndex, 0, -1);
-	
-		//if file exists - will continue download
-		FileInfo fi = ad.fileinfo.get(fileIndex);
-		File myFile = new File(ad.getDIR()+fi.name);
-	
- 		if (myFile.exists()) {
- 			append = true;
- 			setHeader("range", myFile.length()+"-");
- 		}
 	}
+	
+	
 	
 	public void getResponseBody() {
 
 		//LOG: System.out.println(response);
 		String fname = (customFileName==null) ? response.headers.get("file") : customFileName;
+		
+		//skip if full file already exists
+
+		
 	 	try {
+	 		
+	 		
+	 		
 			InputStream sis = socket.getInputStream();				 		
 			FileOutputStream fos = new FileOutputStream(ad.getDIR()+fname, append);
 			
 			long size =  Long.parseLong(response.headers.get("length"));
 				
 			int count;
-			byte[] buffer = new byte[8192*4]; 
+			byte[] buffer = new byte[8192]; 
 			while (size > 0 && (count = sis.read(buffer,0, (int)Math.min(buffer.length, size))) != -1)
 			{
 			  fos.write(buffer, 0, count);
-			  if (breakDownload && !append && (new File(ad.getDIR()+fname).length())>16000) break;
+			  if (breakDownload && (new File(ad.getDIR()+fname).length())>16000) break;
 			  size-=count;
 			}
+			
+			
 
 			
 			fos.flush();
 			fos.close();
 			sis.close();	
-			if (!breakDownload && (size>0 || (new File(ad.getDIR()+fname)).length() != Integer.parseInt(response.headers.get("length")))) {
+			if (!breakDownload && (size>0 || (!append && (new File(ad.getDIR()+fname)).length() != Integer.parseInt(response.headers.get("length"))))) {
 				//transfer failed - should retry
-				//LOG: System.out.println("SIZE "+fname+" MISMATCH "+(new File(ad.getDIR()+fname)).length()+'\t'+response.headers.get("length"));
+			    System.out.println("SIZE "+fname+" MISMATCH "+(new File(ad.getDIR()+fname)).length()+'\t'+response.headers.get("length"));
 				System.out.println("Retrying...");
 				failed =true;
 				

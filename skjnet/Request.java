@@ -13,6 +13,8 @@ public class Request {
 	HashMap<String, String> headers;
 	AppData ad;
 	Response response;
+	OutputStream os = null;
+	InputStream is = null;
 	
 	public Request(int targetAppId) {
 		ad = AppData.getInstance();
@@ -31,7 +33,7 @@ public class Request {
 	
 	public Response getResponseHeaders() {
 		if (socket.isClosed()) return null;
-		Response resp = new Response(socket);
+		Response resp = new Response(is);
 		
 		resp.readHeaders();
 
@@ -48,25 +50,32 @@ public class Request {
 		
 		try {
 			int port = ad.getPortOffset()+targetAppId;
-			
 			socket = new Socket("127.0.0.1", port);
+			os = socket.getOutputStream();
+			is = socket.getInputStream();
 			
-			DataOutputStream os = new DataOutputStream(socket.getOutputStream());
-			os.writeBytes("SKJNET "+command+'\n');
+			String comm = "SKJNET "+command+'\n';
+			os.write(comm.getBytes());
 			
 			
 			for(Entry<String, String> e: headers.entrySet()){
-				os.writeBytes(e.getKey()+":"+e.getValue()+'\n');
+				String header = e.getKey()+":"+e.getValue()+'\n';
+				os.write(header.getBytes());
 			}
 			
-			os.writeBytes(""+'\n');
+			os.write('\n');
 		
 			sendBody();
 			
 			getResponse();
 			
+			is.close();
+			is = null;
+			os.close();
+			os = null;
+			
 			ad.log.info(this.toString());
-			ad.log.info(this.response.toString());
+			if (response!=null) ad.log.info(this.response.toString());
 			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block

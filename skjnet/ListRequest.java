@@ -13,7 +13,7 @@ public class ListRequest extends Request {
 	
 	public void getResponseBody() {
 		try {
-		BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		BufferedReader inFromServer = new BufferedReader(new InputStreamReader(is));
 		
 		String line;
 

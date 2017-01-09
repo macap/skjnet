@@ -25,7 +25,32 @@ public class TCPClient {
 	}
 	
 	public static void get(int index) {
-		GetRequest gr = new GetRequest(index);
+		
+		//check if file exists:
+		AppData ad = AppData.getInstance();
+		GetRequest gr=null;
+		
+		String fname = ad.fileinfo.get(index).name;
+		File myFile = new File(ad.getDIR()+fname);
+		if (myFile.exists()) {
+			System.out.println("File "+fname+" ("+myFile.length()+"B) exists. Remote server size: "+ad.fileinfo.get(index).size+" (C)ontinue or remove and start from the (B)eginning (C/B)");
+			try {
+				BufferedReader userCommand = new BufferedReader(new InputStreamReader(System.in));
+				if (userCommand.readLine().equals("B")) {
+					myFile.delete();
+				} else {
+					gr = new GetRequest(index, (int)myFile.length(), -1, true);
+				}
+			} catch(Exception e) {
+				
+			}
+			
+		}
+
+		
+		if (gr==null) 
+			gr  = new GetRequest(index);
+		
 		gr.send();
 	}
 	
@@ -56,6 +81,8 @@ public class TCPClient {
 			
 			if (!command[0].toLowerCase().equals("list") && ad.fileinfo.isEmpty())  //TODO: what if there's no files on any server
 				list(true);
+			
+			
 			
 			switch (command[0].toLowerCase()) {
 			

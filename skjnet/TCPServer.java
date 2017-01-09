@@ -8,27 +8,52 @@ public class TCPServer {
 	
 	
 	public static void start(int port, String DIR) throws Exception {
-		ServerSocket welcomeSocket = new ServerSocket(port); 
+		ServerSocket welcomeSocket = null;
+		
+        try {
+        	welcomeSocket = new ServerSocket(port);
+        } catch (IOException ex) {
+            System.out.println("Can't setup server on this port number. ");
+        }
 		
 		while(true) {
-			Socket connectionSocket = welcomeSocket.accept();
+			Socket connectionSocket = null;
+			InputStream is = null;
+			OutputStream os = null;
+			
 			try {
-			 //Connect client:
-			 AppData.getInstance().log.info("SERVER: Accepted connection: " + connectionSocket);
-			 //Read client command
-			 BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
-			 
-			 String line=inFromClient.readLine();
-			 
-			 //if not SKJNET protocol close connection:
+			
+			
+			try {
+	            connectionSocket = welcomeSocket.accept();
+	        } catch (IOException ex) {
+	            System.out.println("Can't accept client connection. ");
+	        }
+			
+			AppData.getInstance().log.info("SERVER: Accepted connection: " + connectionSocket);
+			
+			try {
+	            is = connectionSocket.getInputStream();
+	        } catch (IOException ex) {
+	            System.out.println("Can't get socket input stream. ");
+	        }
+			
+			os = connectionSocket.getOutputStream();
+			
+			//Read client command
+			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(is)); 
+			String line=inFromClient.readLine();
+			
+			//if not SKJNET protocol close connection:
 			 if (!line.startsWith("SKJNET")) {
 				 connectionSocket.close();
 				 continue;
 			 }
-			 //Command:
+			//Command:
 			 String command = line.split(" ")[1];
 			 
-			 //HEADERS:
+			 
+			//HEADERS:
 			 HashMap<String, String> headers = new HashMap<String, String>();
 			 
 			 while((line=inFromClient.readLine())!=null){ 
@@ -38,34 +63,39 @@ public class TCPServer {
 			 }
 			 
 			 AppData.getInstance().log.info("SERVER: Client command: "+command);
-			 DataOutputStream outToClient =new DataOutputStream(connectionSocket.getOutputStream());
-		 		
+			 
+			 //DataOutputStream outToClient =new DataOutputStream(os);
+			
+			 
 			 switch(command.toLowerCase()) {
 			 
 			 	case "list":			 		
-			 		outToClient.writeBytes("SKJNET OK"+'\n'+'\n');
+			 		//outToClient.writeBytes();
+			 		String response = "SKJNET OK"+'\n'+'\n';
+			 		os.write(response.getBytes());
+			 		
 			 		
 			 		File f = new File(DIR);
 			 		File[] fileList = f.listFiles();
 			 		
 			 		for(File p:fileList ) {
-			 			outToClient.writeBytes(p.getName()+'\t'+MD5.checksum(p)+'\t'+(int)p.length()+'\n');
+			 			String filedata = p.getName()+'\t'+MD5.checksum(p)+'\t'+(int)p.length()+'\n';
+//			 			outToClient.writeBytes(filedata);
+			 			os.write(filedata.getBytes());
 			 		}
 			 		
-					outToClient.flush();
-					outToClient.close();
+					//outToClient.flush();
+					//outToClient.close();
 		 		break;
 			 	case "get":		
 			 		String filename = headers.get("file");
-			 		
 			 		String range[] = headers.get("range").split("-");
 			 	
-			 		
 			 		File myFile = new File(DIR+filename);
 			 		if(myFile.exists() && !myFile.isDirectory()) { 
 			 	
-			 			  FileInputStream fis = null;
-			 			  BufferedInputStream bis = null;
+			 			FileInputStream fis = null;
+			 			BufferedInputStream bis = null;
 			 			  
 			 			  int start = Integer.parseInt(range[0]),
 		 					  end = (range.length==2) ? Integer.parseInt(range[1]) : (int)myFile.length();
@@ -78,56 +108,63 @@ public class TCPServer {
 			 	         
 			 	          
 			 	       //response:  
-	 					outToClient.writeBytes("SKJNET OK"+'\n');
-				 		outToClient.writeBytes("file:"+myFile.getName()+'\n');
-				 		outToClient.writeBytes("size:"+(int)myFile.length()+'\n');
-				 		outToClient.writeBytes("range:"+start+"-"+end+'\n');
-				 		outToClient.writeBytes("length:"+(end-start)+'\n');
-				 		outToClient.writeBytes("sum:"+MD5.checksum(myFile)+'\n'+'\n');
-			 	        
-				 		outToClient.flush();
+//	 					outToClient.writeBytes("SKJNET OK"+'\n');
+//				 		outToClient.writeBytes("file:"+myFile.getName()+'\n');
+//				 		outToClient.writeBytes("size:"+(int)myFile.length()+'\n');
+//				 		outToClient.writeBytes("range:"+start+"-"+end+'\n');
+//				 		outToClient.writeBytes("length:"+(end-start)+'\n');
+//				 		outToClient.writeBytes("sum:"+MD5.checksum(myFile)+'\n'+'\n');
+//			 	        
+	
+			 	          String head[] = {
+				 					"SKJNET OK"+'\n',
+							 		"file:"+myFile.getName()+'\n',
+							 		"size:"+(int)myFile.length()+'\n',
+							 		"range:"+start+"-"+end+'\n',
+							 		"length:"+(end-start)+'\n',
+							 		"sum:"+MD5.checksum(myFile)+'\n'+'\n'
+			 	          }; 
+			 	          
+			 	          for(String h : head) {
+			 	        	 os.write(h.getBytes());
+			 	          }
+				 		
+			 	          
+			 	          
 				 		
 				 		fis.skip(start);
 
-				 		 OutputStream out = connectionSocket.getOutputStream();
-				 		
 				 		 byte[] bytes = new byte[8192];
-
 				 		 AppData.getInstance().log.info("SERVER: Sending " + myFile.getName() + "(" +(end-start) + " bytes)");
 				 		 
 				 		 int readedSoFar = start;
 				         int count;
-				         
-				         
+				        				         
 				         long size = (end-start);
 							
-						
-
 						while (size > 0 && (count = fis.read(bytes,0, (int)Math.min(bytes.length, size))) != -1)
 						{
-						  out.write(bytes, 0, count);		
+						  os.write(bytes, 0, count);		
 						  size-=count;
 						}
 						
 						//LOG: System.out.println("SIZE:"+size);
 				         
 
-				        out.flush();
+				        //os.flush();
 						connectionSocket.close();
-				 		out.close();
+				 		os.close();
 				 		fis.close();
-			 	          
-			 	        
-				 		 AppData.getInstance().log.info("SERVER: Done.");
+			 	        AppData.getInstance().log.info("SERVER: Done.");
 
 						
 			 			
 			 			
 			 		} else {
-			 			outToClient.writeBytes("SKJNET NOK"+'\n');
-			 			outToClient.writeBytes("error:File not found"+'\n'+'\n');
-						outToClient.flush();
-						outToClient.close();
+			 			//outToClient.writeBytes("SKJNET NOK"+'\n');
+			 			//outToClient.writeBytes("error:File not found"+'\n'+'\n');
+						//outToClient.flush();
+						//outToClient.close();
 			 		}
 			 		
 			 		
@@ -137,58 +174,38 @@ public class TCPServer {
 			 		
 			 		String fname = headers.get("file");
 			 		
-			 		
-					InputStream sis = connectionSocket.getInputStream();				 		
-					
 					FileOutputStream fos = new FileOutputStream(DIR+fname);
 					
 					int count;
 					byte[] buffer = new byte[8192]; // or 4096, or more
-					while ((count = sis.read(buffer)) > 0)
+					while ((count = is.read(buffer)) > 0)
 					{
 					  fos.write(buffer, 0, count);
 					}
 					
-					//LOG: System.out.println("SERVER: > total:"+(new File(DIR+fname).length()));
-					
-					System.out.println(">Received file "+fname);
-					
-					
 					fos.close();
+			 		//outToClient.flush();
+			 		is.close();				 		
 			 		
-			 		outToClient.flush();
-			 		sis.close();				 		
-			 		
-//			 		outToClient.close();
-			 		
-
 		 		break;
 		 		default:
-		 			outToClient.writeBytes("SKJNET NOK"+'\n');
-		 			outToClient.writeBytes("error:Command not found"+'\n'+'\n');
-					outToClient.flush();
-					outToClient.close();
+		 			//outToClient.writeBytes("SKJNET NOK"+'\n');
+		 			//outToClient.writeBytes("error:Command not found"+'\n'+'\n');
+					
 
 			 }
 			 
-		
+			 //outToClient.close();
 			 
-			 	
+			 //outToClient.flush();
 			 
-			} catch (SocketException e){
-				e.printStackTrace();
+			} catch (SocketException e) {
 				
-				
-			} catch (Exception e) {
-				DataOutputStream outToClient =new DataOutputStream(connectionSocket.getOutputStream());
-				
-				outToClient.writeBytes("SKJNET NOK"+'\n');
-	 			outToClient.writeBytes("error: Bad request or Internal server error"+'\n'+'\n');
-				outToClient.flush();
-				outToClient.close();
+			} finally {
+
+				 connectionSocket.close();
 			}
 			
-			 
 		}
 		
 		

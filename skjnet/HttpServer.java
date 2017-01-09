@@ -1,6 +1,10 @@
 package skjnet;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -17,7 +21,7 @@ public class HttpServer {
 			 String line=inFromClient.readLine();		
 			 
 
-			 if (line.indexOf("GET") <0) {
+			 if (line.isEmpty() || line.indexOf("GET") <0) {
 				 connectionSocket.close();
 				 continue;
 			 }

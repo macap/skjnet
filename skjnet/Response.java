@@ -3,6 +3,7 @@ package skjnet;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.HashMap;
@@ -10,19 +11,21 @@ import java.util.Map.Entry;
 
 public class Response {
 	String status;
-	Socket socket;
+	InputStream is;
 	boolean valid;
 	HashMap<String, String> headers;
 	
-	public Response(Socket socket) {
-		this.socket = socket;
+	public Response(InputStream is) {
+		this.is = is;
 		headers = new HashMap<String,String>();
 	}
 	
 	public void readHeaders() {
 		
 		try {
-			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(is));
+			DataInputStream inFromServer = new DataInputStream(is);
+			
 			
 			String line;
 			status = inFromServer.readLine();
