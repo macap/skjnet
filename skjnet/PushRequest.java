@@ -41,5 +41,7 @@ public class PushRequest extends Request {
 			e.printStackTrace();
 		}
 	}
+	public void getResponse() { 
 	
+	}
 }

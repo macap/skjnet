@@ -5,8 +5,6 @@ import java.net.*;
 import java.util.*;
 
 public class TCPClient {
-	
-//	public final static String DIR = "/Users/maciek/torrent2/";
 
 	public static void list() {
 		list(false);
@@ -44,7 +42,6 @@ public class TCPClient {
 			} catch(Exception e) {
 				
 			}
-			
 		}
 
 		

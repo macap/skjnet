@@ -6,7 +6,7 @@ import java.net.UnknownHostException;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class Request {
+public abstract class Request {
 	String command;
 	Socket socket =null;
 	int targetAppId;
